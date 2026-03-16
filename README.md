@@ -332,6 +332,7 @@ SSS-2
 
 ```text
 docs/
+|-- README.md
 |-- ARCHITECTURE.md
 |-- SDK.md
 |-- OPERATIONS.md
@@ -349,6 +350,7 @@ docs/
 
 Start here if you want:
 
+- docs index: [`docs/README.md`](docs/README.md)
 - architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 - operator flows: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
 - SDK usage: [`docs/SDK.md`](docs/SDK.md)

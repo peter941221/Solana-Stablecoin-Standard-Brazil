@@ -1,67 +1,63 @@
 # SDK
 
-## Installation
+```text
+app code
+  -> SolanaStablecoin
+      |-- lifecycle methods
+      |-- compliance module
+      `-- role manager
+```
 
-Published package
+## Package
 
-  npm install @stbr/sss-token
+- Package name: `@stbr/sss-token`
+- Purpose: provide a TypeScript interface for creating and operating SSS stablecoins
+- Runtime target: Solana `web3.js` + Anchor-compatible workflows
 
+## Install
 
-Local build
+```bash
+npm install @stbr/sss-token
+```
 
-  cd sdk/sss-token
+Local development:
 
-  npm install
-
-  npm run build
+```bash
+cd sdk/sss-token
+npm ci
+npm run build
+```
 
 ## Presets
 
-- SSS-1: minimal profile.
+```text
+SSS-1
+|-- mint / burn
+|-- freeze / thaw
+`-- pause / roles
 
-- SSS-2: compliant profile with transfer hook and seizure.
+SSS-2
+|-- everything in SSS-1
+|-- transfer hook
+|-- blacklist support
+`-- seizure support
+```
 
-## Custom Config
+## Main API
 
-Use a custom config when you want to enable or disable extensions manually.
-
-Fields you can override
-
-- permanentDelegate
-
-- transferHook
-
-- defaultAccountFrozen
-
-## API Overview
-
-Primary class
-
-  SolanaStablecoin
-
-Core methods
-
-- create
-
-- fromExisting
-
-- mint
-
-- burn
-
-- freeze
-
-- thaw
-
-- pause
-
-- unpause
-
-Modules
-
-- compliance: SSS-2 only.
-
-- roles: grant and revoke roles.
+```text
+SolanaStablecoin
+|-- create
+|-- fromExisting
+|-- mint
+|-- burn
+|-- freeze
+|-- thaw
+|-- pause
+|-- unpause
+|-- compliance.*
+`-- roles.*
+```
 
 ## Example
 
@@ -84,7 +80,20 @@ const recipient = new PublicKey("9xYZ...abc");
 await stablecoin.mint({ recipient, amount: 1_000_000 });
 ```
 
-## Errors
+## Custom Configuration
 
-The SDK wraps Anchor errors into typed exceptions.
-Use try/catch and surface readable messages to users.
+- Use a preset when you want a standard behavior profile.
+- Use extension overrides when you need a custom profile.
+- Confidential transfer is currently rejected by the SDK.
+
+Common overrides:
+
+- `permanentDelegate`
+- `transferHook`
+- `defaultAccountFrozen`
+
+## Error Handling
+
+- The SDK wraps Anchor failures into typed JavaScript errors where possible.
+- Use `try/catch` around transaction submission and surface readable failures to operators.
+- Treat proof generation and administrative actions as auditable workflows, not silent background actions.

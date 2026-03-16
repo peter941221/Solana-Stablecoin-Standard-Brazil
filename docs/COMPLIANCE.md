@@ -1,18 +1,22 @@
 # Compliance
 
-## Regulatory Considerations
+```text
+compliance posture
+|-- separated operational roles
+|-- on-chain blacklist evidence
+|-- transfer-time enforcement
+`-- exportable audit data
+```
 
-- Separate operational roles (minter, burner, freezer, pauser).
+## Regulatory Design Goals
 
-- On-chain blacklist with auditable history.
+- Separate operational roles such as minter, burner, freezer, pauser, blacklister, and seizer.
+- Keep blacklist state on chain so enforcement can be demonstrated directly from program state.
+- Require explicit approval paths for seizure and other high-risk administrative actions.
 
-- Seizure flow requires explicit role and frozen account.
+## Audit Log Shape
 
-## Audit Log Format
-
-Event Indexer stores every Anchor event.
-
-JSON example
+JSON example:
 
 ```json
 {
@@ -28,21 +32,21 @@ JSON example
 }
 ```
 
-CSV export
+CSV example:
 
-```
+```text
 timestamp,action,actor,target,amount,details,tx_signature
 2025-01-15T14:30:00Z,MINT,9xYZ...abc,3mNP...def,1000000,,5rTQ...ghi
 ```
 
-## Sanctions Screening Integration
+## Screening Integration
 
-- Compliance service can connect to external providers.
+- The compliance service can call external screening providers.
+- If no provider is configured, the service returns `provider_not_configured`.
+- Screening responses should be stored alongside transaction evidence in operational systems.
 
-- If no provider configured, screening returns "provider_not_configured".
+## Monitoring
 
-## Monitoring and Reporting
-
-- Rules can be configured as simple conditions.
-
-- Webhook alerts are delivered with signed headers.
+- Monitoring rules can be configured through the compliance API.
+- Webhook alerts can be signed and delivered to downstream control systems.
+- Treat transfer-hook rejections as evidence-producing events, not just user-facing errors.

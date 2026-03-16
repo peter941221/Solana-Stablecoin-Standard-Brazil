@@ -1,61 +1,92 @@
 # Architecture
 
-## Three-Layer Model
+```text
+Applications and operator tooling
+        |
+        v
+SDK + CLI + services
+        |
+        v
+stablecoin-core -----------------> Token-2022 mint and token accounts
+        |
+        `------------------------> config, role, and blacklist PDAs
 
-L1 Base SDK -> L2 Modules -> L3 Presets
+Token-2022 transfer
+        |
+        v
+transfer-hook -------------------> allow or deny based on SSS-2 rules
+```
 
-+------------------+     +------------------+     +------------------+
-| Base SDK (L1)    | --> | Modules (L2)     | --> | Presets (L3)     |
-| tx builders      |     | compliance       |     | SSS-1, SSS-2     |
-| PDA helpers      |     | roles            |     | custom configs   |
-+------------------+     +------------------+     +------------------+
+## Layer Model
 
-## On-Chain Programs
+```text
+L1  On-chain state and authority    stablecoin-core
+L2  Transfer-time enforcement       transfer-hook
+L3  Developer and operator access   SDK + CLI + services
+L4  Delivery and assurance          docs + tests + CI + proofs
+```
 
-- stablecoin-core: single configurable program for SSS-1 and SSS-2.
+## Program Boundaries
 
-- transfer-hook: independent program for blacklist enforcement.
+- `stablecoin-core` owns stablecoin lifecycle logic: initialize, mint, burn, freeze, thaw, pause, roles, blacklist updates, and seizure.
+- `transfer-hook` is a focused Token-2022 guard that reads stablecoin configuration and blacklist entries before a transfer is accepted.
+- The hook does not own business state; it enforces rules against state owned by `stablecoin-core`.
 
-## Data Flow: Mint
+## PDA Model
 
-Client
+```text
+StablecoinConfig PDA
+|-- seed: ["stablecoin", mint]
+|-- stores mint, authority, features, totals, treasury
+`-- acts as mint and freeze authority
 
-  | build instruction
-  v
-stablecoin-core
+RoleAccount PDA
+|-- seed: ["role", config, authority]
+|-- stores role bitmask and optional minter quota
+`-- enables role separation
 
-  | PDA signs mint
-  v
-Token-2022
+BlacklistEntry PDA
+|-- seed: ["blacklist", config, wallet]
+|-- stores blacklist status and metadata
+`-- used by SSS-2 enforcement
+```
 
-## Data Flow: Transfer Hook (SSS-2)
+## Core Flows
 
-Token-2022
+### Mint
 
-  | CPI
-  v
-transfer-hook
+```text
+operator
+  -> SDK / CLI / service
+  -> stablecoin-core
+  -> config PDA signs
+  -> Token-2022 mint issues supply
+```
 
-  | read StablecoinConfig + BlacklistEntry
-  v
-allow or deny transfer
+### Transfer Enforcement
 
-## Data Flow: Seize (SSS-2)
+```text
+wallet transfer
+  -> Token-2022
+  -> transfer-hook CPI
+  -> read config + blacklist PDAs
+  -> allow or deny
+```
 
-stablecoin-core
+### Seizure
 
-  | permanent delegate
-  v
-Token-2022 transfer_checked
-
-  | move balance to treasury
-  v
-audit event emitted
+```text
+authorized operator
+  -> stablecoin-core
+  -> permanent delegate flow
+  -> Token-2022 transfer_checked
+  -> treasury ATA receives funds
+```
 
 ## Security Model
 
-- Role separation via RoleAccount PDA.
-
-- Feature gating for compliance-only instructions.
-
-- PDA authority for mint, freeze, and metadata.
+- Role separation reduces operational key concentration.
+- Feature flags keep `SSS-1` and `SSS-2` behavior explicit.
+- PDA-controlled mint and freeze authority removes direct key ownership from the mint itself.
+- `SSS-2` seizure requires role validation, feature validation, blacklist validation, and frozen-account validation.
+- Transfer enforcement runs at transfer time instead of relying on off-chain monitoring alone.

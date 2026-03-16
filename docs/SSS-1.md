@@ -1,82 +1,73 @@
-# SSS-1: Minimal Stablecoin Standard
+# SSS-1
+
+```text
+SSS-1 = minimal stablecoin profile
+|-- mint
+|-- burn
+|-- freeze / thaw
+|-- pause / unpause
+`-- role-based administration
+```
 
 ## Summary
 
-SSS-1 defines the minimal stablecoin profile on Solana Token-2022.
-It focuses on mint, burn, freeze, and pause with strict role-based access control.
+`SSS-1` is the base profile for issuers who want controlled minting and administrative safety rails without transfer-time blacklist enforcement.
 
-## Token-2022 Extensions
+## Enabled Extensions
 
-- MintCloseAuthority: close authority is the StablecoinConfig PDA.
+- `MintCloseAuthority`
+- `MetadataPointer`
+- `DefaultAccountState` when configured
 
-- MetadataPointer: metadata stored on the mint address.
+Disabled by design:
 
-- DefaultAccountState (optional): new accounts can be created as Frozen.
+- `PermanentDelegate`
+- `TransferHook`
 
-- PermanentDelegate: disabled in SSS-1.
+## PDA Layout
 
-- TransferHook: disabled in SSS-1.
-
-## Accounts (PDA Model)
-
+```text
 StablecoinConfig PDA
-
-  Seed: ["stablecoin", mint]
+|-- seed: ["stablecoin", mint]
+|-- authority and feature flags
+`-- supply and operational state
 
 RoleAccount PDA
-
-  Seed: ["role", config, authority]
-
-
-ASCII view
-
-+--------------------+        +-------------------+
-| StablecoinConfig   |        | RoleAccount       |
-| PDA                |        | PDA               |
-+--------------------+        +-------------------+
-| mint               |        | authority         |
-| authority          |        | roles (bitmask)   |
-| feature flags      |        | mint quota        |
-+--------------------+        +-------------------+
+|-- seed: ["role", config, authority]
+`-- bitmask roles plus quota metadata
+```
 
 ## Instructions
 
-- initialize: create mint, config, and master role.
-
-- mint: issue tokens to a recipient ATA.
-
-- burn: destroy tokens from the caller ATA.
-
-- freeze_account / thaw_account: freeze or thaw a token account.
-
-- pause / unpause: pause or resume mint and burn.
-
-- update_roles: grant or revoke roles for an address.
-
-- update_minter: update a minter quota.
-
-- transfer_authority: move master authority to a new address.
+- `initialize`
+- `mint`
+- `burn`
+- `freeze_account`
+- `thaw_account`
+- `pause`
+- `unpause`
+- `update_roles`
+- `update_minter`
+- `transfer_authority`
 
 ## Roles
 
-Bitmask values
+```text
+0x01 MASTER_AUTHORITY
+0x02 MINTER
+0x04 BURNER
+0x08 FREEZER
+0x10 PAUSER
+```
 
-- 0x01 MASTER_AUTHORITY
+## Intended Use
 
-- 0x02 MINTER
+- Treasury-issued stablecoins with manual compliance outside the transfer path
+- Test environments that need simpler operational assumptions
+- Products that want the smallest possible on-chain policy surface
 
-- 0x04 BURNER
+## Security Notes
 
-- 0x08 FREEZER
-
-- 0x10 PAUSER
-
-## Security Considerations
-
-- PDA signing: config PDA is the mint authority and freeze authority.
-
-- Role checks: every privileged instruction validates role bitmask.
-
-- Feature gating: SSS-1 rejects compliance-only roles and instructions.
-
-- Quota windows: minter quotas are enforced per time window.
+- The config PDA signs privileged mint and freeze actions.
+- Every privileged instruction validates the caller role bitmask.
+- `SSS-1` rejects compliance-only flows that belong to `SSS-2`.

@@ -1,69 +1,71 @@
-# SSS-2: Compliant Stablecoin Standard
+# SSS-2
+
+```text
+SSS-2 = compliant stablecoin profile
+|-- everything in SSS-1
+|-- transfer-hook enforcement
+|-- blacklist registry
+`-- seizure path to treasury
+```
 
 ## Summary
 
-SSS-2 extends SSS-1 with compliance controls.
-It enables on-chain blacklisting and seizure while enforcing transfer rules through
-Token-2022 TransferHook.
+`SSS-2` extends the base stablecoin profile with transfer-time compliance controls for issuers who need stronger on-chain enforcement.
 
-## Compliance Features
+## Added Features
 
-- TransferHook enforcement: deny transfers when sender or receiver is blacklisted.
+- Transfer-hook enforcement for senders and receivers
+- On-chain blacklist entries
+- Permanent delegate based seizure flow
+- Expanded role set for compliance operations
 
-- Blacklist registry: on-chain BlacklistEntry PDA per wallet.
+## Enabled Extensions
 
-- Seizure flow: permanent delegate allows forced transfer to treasury.
+- `MintCloseAuthority`
+- `MetadataPointer`
+- `TransferHook`
+- `PermanentDelegate`
+- `DefaultAccountState` when configured
 
-## Token-2022 Extensions
+## Transfer Flow
 
-- MintCloseAuthority: close authority is the StablecoinConfig PDA.
-
-- MetadataPointer: metadata stored on the mint address.
-
-- TransferHook: enabled and points to the transfer-hook program.
-
-- PermanentDelegate: enabled for seizure flow.
-
-- DefaultAccountState (optional): new accounts can be created as Frozen.
-
-## Transfer Hook Flow
-
-TransferChecked
-
-  | Token-2022
-  v
-transfer-hook program
-
-  | loads StablecoinConfig + BlacklistEntry PDAs
-  v
-allow or deny transfer
+```text
+transfer request
+  -> Token-2022
+  -> transfer-hook
+  -> load config and blacklist PDAs
+  -> allow or deny
+```
 
 ## Blacklist and Seizure Model
 
-Blacklist PDA
+```text
+BlacklistEntry PDA
+|-- seed: ["blacklist", config, wallet]
+`-- active state used during transfer checks
 
-  Seed: ["blacklist", config, wallet]
+Seize requirements
+|-- caller has MASTER_AUTHORITY or SEIZER
+|-- permanent delegate enabled
+|-- wallet is blacklisted
+`-- token account is frozen
+```
 
-Seizure requirements
+## Additional Instructions
 
-- caller has MASTER_AUTHORITY or SEIZER role.
+- `add_to_blacklist`
+- `remove_from_blacklist`
+- `seize`
 
-- permanent_delegate feature enabled.
+## Roles
 
-- wallet is blacklisted and token account is Frozen.
+Additional SSS-2 roles:
 
-## Instructions (SSS-2 additions)
+- `BLACKLISTER`
+- `SEIZER`
 
-- add_to_blacklist: create or activate a blacklist entry.
+## Security Notes
 
-- remove_from_blacklist: deactivate a blacklist entry.
-
-- seize: move full balance to treasury via permanent delegate.
-
-## Security Considerations
-
-- TransferHook uses external PDA seeds and never writes state.
-
-- Blacklist entries are PDA-owned by stablecoin-core only.
-
-- Seize requires 4-way validation (role, feature, blacklist, frozen).
+- The transfer hook reads state but does not mutate business data.
+- Seizure is guarded by multiple independent checks.
+- A blocked transfer is expected behavior when blacklist rules apply.

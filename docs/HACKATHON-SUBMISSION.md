@@ -1,70 +1,63 @@
 # Hackathon Submission
 
+```text
+Solana Stablecoin Standard
+|-- two preset profiles
+|-- on-chain programs
+|-- SDK + CLI + services
+`-- devnet proof artifacts
+```
+
 ## Project Description
 
-Solana Stablecoin Standard (SSS) is a modular standard for issuing stablecoins on Solana.
-It provides on-chain programs, a TypeScript SDK, a CLI, and service templates for
-compliance-aware stablecoins.
+Solana Stablecoin Standard is a modular framework for issuing controlled and compliance-aware stablecoins on Solana. It includes on-chain programs, a TypeScript SDK, a Rust CLI, service templates, public documentation, and devnet proof artifacts.
 
 ## Links
 
-- Repository: https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil
+- Repository: `https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil`
 
 ## Highlights
 
-- Two presets:
-  - SSS-1: minimal stablecoin (mint/burn, freeze/thaw, metadata).
-  - SSS-2: compliant stablecoin (SSS-1 + transfer hook + blacklist + seize).
+- `SSS-1`: mint, burn, freeze, thaw, pause, and role-based administration
+- `SSS-2`: everything in `SSS-1` plus blacklist enforcement and seizure
+- Full-stack delivery across programs, SDK, CLI, services, docs, tests, and CI
 
-- Full stack deliverables:
-  - Programs: stablecoin-core + transfer-hook.
-  - SDK: @stbr/sss-token instruction builders + helpers.
-  - CLI: operations for mint/burn/freeze/thaw/blacklist/seize.
-  - Services: mock + live mode (mint-burn, compliance, indexer).
+## Architecture
 
-- Devnet proofs:
-  - SSS-1: deployments/devnet-sss1-proof.json
-  - SSS-2: deployments/devnet-sss2-proof.json
-  - Deployment summary: deployments/devnet.json
+```text
+Applications / integrations
+        |
+        v
+SDK + CLI + services
+        |
+        v
+stablecoin-core + transfer-hook
+        |
+        v
+Token-2022 state and audit evidence
+```
 
-## Architecture (Layered)
-
-┌──────────────────────────────────────┐
-│  Applications / Integrations         │
-├──────────────────────────────────────┤
-│  SDK + CLI + Services (APIs)          │
-├──────────────────────────────────────┤
-│  Programs: stablecoin-core + hook     │
-└──────────────────────────────────────┘
-
-## How To Verify (Devnet)
+## Verification
 
 PowerShell:
 
+```bash
 pwsh scripts/verify-devnet.ps1
-
-PowerShell dry run:
-
 pwsh scripts/verify-devnet.ps1 -DryRun
-
-PowerShell with proof tag:
-
 pwsh scripts/verify-devnet.ps1 -ProofTag demo-2026-02-24
+```
 
 Bash:
 
+```bash
 bash scripts/verify-devnet.sh
-
-Bash dry run:
-
 bash scripts/verify-devnet.sh --dry-run
-
-Bash with proof tag:
-
 bash scripts/verify-devnet.sh --proof-tag demo-2026-02-24
+```
 
-SSS-1 demo:
+Manual proof generation:
 
+```bash
 NODE_OPTIONS=--dns-result-order=ipv4first DISABLE_AIRDROP=1 \
 SSS_CORE_PROGRAM_ID=5T8qkjgJVWcUVza36JVFq3GCiKwAXhunKc8NY2nNbtiZ \
 SSS_TRANSFER_HOOK_PROGRAM_ID=5gVGKwPB7qstEN5Kp8fJGCURGPGz2GQnYHQAtD1zKSLB \
@@ -72,9 +65,9 @@ SOLANA_RPC_URL=https://api.devnet.solana.com SOLANA_COMMITMENT=confirmed \
 AUTHORITY_KEYPAIR_PATH=/path/to/id.json \
 PROOF_PATH=deployments/devnet-sss1-proof.json \
 npx tsx scripts/demo-sss1.ts
+```
 
-SSS-2 demo:
-
+```bash
 NODE_OPTIONS=--dns-result-order=ipv4first DISABLE_AIRDROP=1 \
 SSS_CORE_PROGRAM_ID=5T8qkjgJVWcUVza36JVFq3GCiKwAXhunKc8NY2nNbtiZ \
 SSS_TRANSFER_HOOK_PROGRAM_ID=5gVGKwPB7qstEN5Kp8fJGCURGPGz2GQnYHQAtD1zKSLB \
@@ -82,7 +75,8 @@ SOLANA_RPC_URL=https://api.devnet.solana.com SOLANA_COMMITMENT=confirmed \
 AUTHORITY_KEYPAIR_PATH=/path/to/id.json \
 PROOF_PATH=deployments/devnet-sss2-proof.json \
 npx tsx scripts/demo-sss2.ts
+```
 
 ## Notes
 
-- SSS-2 blocked transfer is expected and proves blacklist enforcement.
+- The blocked transfer in `SSS-2` is an expected proof of blacklist enforcement.

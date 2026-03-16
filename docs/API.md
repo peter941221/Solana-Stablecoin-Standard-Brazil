@@ -1,20 +1,23 @@
 # API Reference
 
-## Mint and Burn Service (port 3001)
+```text
+services
+|-- mint-burn   port 3001
+|-- indexer     port 3002
+`-- compliance  port 3003
+```
 
-Endpoints
+## Mint and Burn Service
 
-- POST /api/v1/mint
+Endpoints:
 
-- POST /api/v1/burn
+- `POST /api/v1/mint`
+- `POST /api/v1/burn`
+- `GET /api/v1/supply`
+- `GET /api/v1/operations`
+- `GET /api/v1/health`
 
-- GET /api/v1/supply
-
-- GET /api/v1/operations
-
-- GET /api/v1/health
-
-Example: mint
+Example request:
 
 ```json
 {
@@ -24,7 +27,7 @@ Example: mint
 }
 ```
 
-Response
+Example response:
 
 ```json
 {
@@ -35,25 +38,21 @@ Response
 }
 ```
 
-Auth and Idempotency
+Auth and idempotency:
 
-- Authorization: Bearer <api-key>
+- `Authorization: Bearer <api-key>`
+- `X-Idempotency-Key: <uuid>`
 
-- X-Idempotency-Key: <uuid>
+## Event Indexer
 
-## Event Indexer (port 3002)
+Endpoints:
 
-Endpoints
+- `GET /api/v1/events`
+- `GET /api/v1/events/stream`
+- `POST /api/v1/webhooks`
+- `DELETE /api/v1/webhooks/:id`
 
-- GET /api/v1/events
-
-- GET /api/v1/events/stream
-
-- POST /api/v1/webhooks
-
-- DELETE /api/v1/webhooks/:id
-
-Webhook payload
+Webhook payload:
 
 ```json
 {
@@ -64,23 +63,18 @@ Webhook payload
 }
 ```
 
-## Compliance Service (port 3003)
+## Compliance Service
 
-Endpoints
+Endpoints:
 
-- POST /api/v1/screening/check
+- `POST /api/v1/screening/check`
+- `GET /api/v1/blacklist`
+- `POST /api/v1/blacklist/add`
+- `POST /api/v1/blacklist/remove`
+- `GET /api/v1/audit/export`
+- `POST /api/v1/monitoring/rules`
 
-- GET /api/v1/blacklist
-
-- POST /api/v1/blacklist/add
-
-- POST /api/v1/blacklist/remove
-
-- GET /api/v1/audit/export
-
-- POST /api/v1/monitoring/rules
-
-Screening response
+Screening response:
 
 ```json
 {
@@ -94,3 +88,9 @@ Screening response
   "checkedAt": "2025-01-15T14:30:00Z"
 }
 ```
+
+## Usage Notes
+
+- `mock` mode is useful for demos and local UX work.
+- `live` mode requires RPC access and the relevant environment variables.
+- Use the indexer service when audit evidence must be queryable after on-chain actions.
