@@ -1,105 +1,378 @@
-# Solana Stablecoin Standard (SSS)
+# Solana Stablecoin Standard Brazil
 
-Open-source standards for stablecoins on Solana.
+[![CI](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml/badge.svg)](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![Solana](https://img.shields.io/badge/Solana-1.18+-9945FF?logo=solana&logoColor=white)
+![Anchor](https://img.shields.io/badge/Anchor-0.30.1-2F7DF4)
+![Token-2022](https://img.shields.io/badge/Token--2022-enabled-14F195)
+![TypeScript](https://img.shields.io/badge/TypeScript-SDK-3178C6?logo=typescript&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-on--chain-000000?logo=rust&logoColor=white)
 
-This repo delivers a modular SDK with opinionated presets:
+```text
+   _____ ____   _____
+  / ___// __/  / ___/  Solana Stablecoin Standard
+  \__ \/ _/    \__ \   Token-2022 + Anchor + SDK + CLI + Services
+ ___/ /_/     ___/ /   Modular stablecoin rails with preset profiles
+/____/(_)    /____/    Built for operations, compliance, and proofs
+```
 
-- SSS-1 (Minimal Stablecoin)
-- SSS-2 (Compliant Stablecoin)
+Build stablecoin infrastructure on Solana with a layered stack:
+
+```text
+L1  Base program logic      stablecoin-core
+L2  Compliance guardrails   transfer-hook
+L3  Operator tooling        SDK + CLI + services
+L4  Delivery surface        docs + CI + deployment proofs
+```
+
+This repository ships two opinionated profiles:
+
+```text
+SSS-1
+|-- mint
+|-- burn
+|-- freeze / thaw
+|-- pause / unpause
+`-- role-based operations
+
+SSS-2
+|-- everything in SSS-1
+|-- on-chain blacklist registry
+|-- transfer-hook enforcement
+`-- seizure flow via permanent delegate
+```
+
+## Why This Repo Exists
+
+```text
+operator
+  |
+  v
+SDK / CLI / API
+  |
+  v
+stablecoin-core --------------------> Token-2022 mint + token accounts
+  |
+  +----> role PDAs
+  |
+  `----> config PDA
+
+Token-2022 transfer
+  |
+  v
+transfer-hook ----------------------> blacklist PDAs
+  |
+  `----> allow / deny
+```
+
+- `stablecoin-core` is the main Anchor program for initialization, minting, burning, freezing, pausing, role management, and SSS-2 seizure operations.
+- `transfer-hook` is a dedicated Token-2022 hook program that blocks transfers when blacklist rules say a transfer must be denied.
+- `sdk/sss-token` provides a TypeScript surface for app developers and automation scripts.
+- `cli` provides a Rust operator interface for day-to-day administration.
+- `services` provides Fastify services for mint/burn operations, compliance workflows, and event indexing.
+- `deployments` stores published proof artifacts for devnet and mainnet environments.
+
+## Feature Map
+
+```text
++-------------------+     +-------------------+     +----------------------+
+| stablecoin-core   | --> | transfer-hook     | --> | external operators   |
+| mint / burn       |     | blacklist checks  |     | SDK / CLI / APIs     |
+| freeze / thaw     |     | read-only guard   |     | wallets / backends   |
+| pause / roles     |     | SSS-2 only        |     | audit pipelines      |
++-------------------+     +-------------------+     +----------------------+
+```
+
+```text
+Role model
+
+MASTER_AUTHORITY
+|-- MINTER
+|-- BURNER
+|-- FREEZER
+|-- PAUSER
+|-- BLACKLISTER
+`-- SEIZER
+```
+
+```text
+Mint flow
+
+operator -> SDK / CLI -> stablecoin-core -> PDA authority -> Token-2022 mint
+
+Transfer flow (SSS-2)
+
+wallet -> Token-2022 -> transfer-hook -> config + blacklist PDAs -> allow / deny
+```
+
+## Repository Layout
+
+```text
+solana-stablecoin-standard-brazil/
+|-- programs/
+|   |-- stablecoin-core/
+|   `-- transfer-hook/
+|-- sdk/
+|   `-- sss-token/
+|-- cli/
+|-- services/
+|-- tests/
+|   |-- anchor/
+|   `-- sdk/
+|-- scripts/
+|-- deployments/
+|-- docs/
+|-- .github/
+|   |-- workflows/
+|   `-- ISSUE_TEMPLATE/
+`-- README.md
+```
 
 ## Quick Start
 
-1. Build programs (coming soon).
+### 1. Install toolchains
 
-2. Run tests (coming soon).
-
-3. Try the CLI (coming soon).
-
-## Presets
-
-- SSS-1: Mint authority + freeze authority + metadata.
-
-- SSS-2: SSS-1 + permanent delegate + transfer hook + blacklist enforcement.
-
-## Devnet Proofs
-
-- Devnet deployment summary: deployments/devnet.json
-
-- SSS-1 proof: deployments/devnet-sss1-proof.json
-  - initialize: zRQV34z9B5d1fBq5tsBCSKj9cR7tCoBSt8A4xSQ6bSTksa8b3CKPtKLCQGVNkvA5ezKWRJbZwyd3G6Cr8ZrdEwF
-  - mint: 3vxxPcoTig11Gh7a1nzEdTsjKEeR9QETuuBc9gFvPXcPoDark94USTmVawFRHxtJBr5TBLwrC64drB9fWLWdKZPP
-  - transfer: 5wg8w9qvnGozA4gH1G1bH1Upi8E64ePirSBcPUzJKM4RMbBskxYyX2v4BxgLeKE5HXNe9CxgExWtJLhVpMZ2svQ6
-  - freeze: 5jGAYDT8V3nEqQtZsnvff3yX65apXauW93gqmMmPQWun9em71rabdZwuhwz4Kf3a6NHXXyg3coRASMg8YayGC64x
-  - thaw: 4jm6ERrn4Zm9uKmsxp7XEcnRvAWWRPdEeSq8VSZG5hQkfZEfizeovdvh7W4Evd24WfCVGLLZdS2DuhM9usQfNY5z
-  - burn: fVxpAMWG2p5oCWA41nwsjDzQodLNpdeKykueQhzm8XxuWKhUsQFb3WUheWq1i3bfhxqGJVXdRimiCCDjph91HoM
-
-- SSS-2 proof: deployments/devnet-sss2-proof.json
-  - initialize: 4YJrXkUqqccdjTeAPjF7BnKWvmBhfvxtQT1duGRWE3ECx3YTsruWrZ5uUSfVX3CvEGZau77JTxr6FeeiePhxApet
-  - mint: oq6WfnRaNjpvt2Mb8Kfdh1JoGW8gEXxnSgNNdU1Gsp5QyxUqUXL5NseiPqqD6fpEJ4AaWuMp8AHkBUZKixYzXiE
-  - transfer: 5bJ9oLUK3UKEER8MLwUmbLiD9dfLD8zJ8EsHzSGXi3C9SX8aXQxsugwr28PFku1rUkoAAgxCikdBQ7Y5MGw4SqfL
-  - blacklist: 3ZRy9JtutK64erCTWLKUKVGt4iX66GWGfcQ4nneWJyRxQrqp1Mswgv5ny93V5zbuBrTQ7SmCBa4jJaocPfYY66k2
-  - blocked transfer: expected (see blockedTransferError)
-  - freeze: 4J4sKZr9wFn9tUMsGWDsf4wne92xSnsuPHNyvx3JW4r9hc9wDvBjoK5QpF4Zuaw3vGjckEXnNUNh1CDF5WM2cEqK
-  - seize: 25JQnjw8faxQHt8ej7NAvT2YrRGSXkhxWpSEMfUyMpB87pvRq9nPrpwWXsxyABSjnLB34KUa8cdkACw6fKGZK9rP
-
-## Verification
-
-- PowerShell: scripts/verify-devnet.ps1
-
-- PowerShell dry run: pwsh scripts/verify-devnet.ps1 -DryRun
-
-- Bash: bash scripts/verify-devnet.sh
-
-- Bash dry run: bash scripts/verify-devnet.sh --dry-run
-
-Note: verification scripts generate new devnet proofs on each run.
-
-## Repo Structure
-
-```
-solana-stablecoin-standard/
-├── programs/
-│   ├── stablecoin-core/
-│   └── transfer-hook/
-├── sdk/
-│   └── sss-token/
-├── cli/
-├── services/
-│   ├── Dockerfile
-│   ├── init.sql
-│   └── src/
-├── tests/
-│   ├── anchor/
-│   └── sdk/
-├── docs/
-└── scripts/
+```text
+Node.js      20+
+Rust         stable
+Solana CLI   required for localnet/devnet/mainnet flows
+Anchor CLI   0.30.1
+Docker       optional, for service stacks
 ```
 
-## Documentation
+### 2. Install dependencies
 
-- docs/ARCHITECTURE.md
+```bash
+npm ci
+cd sdk/sss-token && npm ci
+cd ../../services && npm ci
+cd ..
+```
 
-- docs/SDK.md
+### 3. Prepare a local validator
 
-- docs/OPERATIONS.md
+```bash
+solana-keygen new --no-bip39-passphrase -o ~/.config/solana/id.json
+solana config set --url http://127.0.0.1:8890 --keypair ~/.config/solana/id.json
+solana-test-validator --reset --quiet --rpc-port 8890
+```
 
-- docs/SSS-1.md
+Open a second terminal and run:
 
-- docs/SSS-2.md
+```bash
+solana airdrop 10
+anchor build
+anchor test --skip-local-validator
+```
 
-- docs/COMPLIANCE.md
+### 4. Run targeted developer loops
 
-- docs/API.md
+```bash
+# Root TypeScript tests
+npm test
 
-- docs/CLI.md
+# CLI help
+cargo run -p sss-token-cli -- --help
 
-- docs/DEPLOYMENT.md
+# SDK build
+cd sdk/sss-token && npm run build
 
-- docs/HACKATHON-DELIVERABLES.md
+# Services tests
+cd services && npm test
+```
 
-- docs/HACKATHON-SUBMISSION.md
+## CLI Surface
 
-- docs/HACKATHON-SUBMISSION-TEMPLATE.md
+```text
+sss-token
+|-- init
+|-- mint
+|-- burn
+|-- freeze
+|-- thaw
+|-- pause
+|-- unpause
+|-- blacklist add/remove/check
+|-- seize
+|-- minters list/add/remove
+|-- status
+|-- supply
+|-- holders
+`-- audit-log
+```
+
+Examples:
+
+```bash
+cargo run -p sss-token-cli -- init --preset sss-2 --name "DREX" --symbol "DREX"
+cargo run -p sss-token-cli -- mint <RECIPIENT> <AMOUNT> --mint <MINT_ADDRESS>
+cargo run -p sss-token-cli -- blacklist add <ADDRESS> --reason "OFAC" --mint <MINT_ADDRESS>
+cargo run -p sss-token-cli -- seize <TARGET_ATA> --to <TREASURY_ATA> --mint <MINT_ADDRESS>
+```
+
+## SDK Surface
+
+```text
+SolanaStablecoin
+|-- create
+|-- fromExisting
+|-- mint
+|-- burn
+|-- freeze
+|-- thaw
+|-- pause
+|-- unpause
+|-- compliance.*
+`-- roles.*
+```
+
+```ts
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { Presets, SolanaStablecoin } from "@stbr/sss-token";
+
+const connection = new Connection("https://api.devnet.solana.com");
+const authority = Keypair.generate();
+
+const stablecoin = await SolanaStablecoin.create(connection, {
+  preset: Presets.SSS_2,
+  name: "DREX",
+  symbol: "DREX",
+  decimals: 6,
+  authority,
+});
+
+const recipient = new PublicKey("9xYZ...abc");
+await stablecoin.mint({ recipient, amount: 1_000_000 });
+```
+
+## Services and APIs
+
+```text
+services
+|-- mint-burn   port 3001
+|-- indexer     port 3002
+`-- compliance  port 3003
+```
+
+```text
+mint-burn
+|-- POST /api/v1/mint
+|-- POST /api/v1/burn
+|-- GET  /api/v1/supply
+|-- GET  /api/v1/operations
+`-- GET  /api/v1/health
+
+indexer
+|-- GET    /api/v1/events
+|-- GET    /api/v1/events/stream
+|-- POST   /api/v1/webhooks
+`-- DELETE /api/v1/webhooks/:id
+
+compliance
+|-- POST /api/v1/screening/check
+|-- GET  /api/v1/blacklist
+|-- POST /api/v1/blacklist/add
+|-- POST /api/v1/blacklist/remove
+|-- GET  /api/v1/audit/export
+`-- POST /api/v1/monitoring/rules
+```
+
+Run service workflows with either `docker compose up` for the base profile or `docker compose --profile compliant up` for the compliance profile.
+
+## Deployment and Proofs
+
+```text
+deployments/
+|-- devnet.json
+|-- devnet-sss1-proof.json
+|-- devnet-sss2-proof.json
+`-- mainnet.json
+```
+
+Useful commands:
+
+```bash
+# Devnet deployment
+bash scripts/deploy-devnet.sh
+
+# Mainnet deployment
+CONFIRM_MAINNET=1 bash scripts/deploy-mainnet.sh
+
+# Proof verification (PowerShell)
+pwsh scripts/verify-devnet.ps1
+pwsh scripts/verify-devnet.ps1 -DryRun
+
+# Proof verification (Bash)
+bash scripts/verify-devnet.sh
+bash scripts/verify-devnet.sh --dry-run
+```
+
+The current devnet proof set already includes transaction traces for:
+
+```text
+SSS-1
+|-- initialize
+|-- mint
+|-- transfer
+|-- freeze
+|-- thaw
+`-- burn
+
+SSS-2
+|-- initialize
+|-- mint
+|-- transfer
+|-- blacklist
+|-- blocked transfer
+|-- freeze
+`-- seize
+```
+
+## Documentation Map
+
+```text
+docs/
+|-- ARCHITECTURE.md
+|-- SDK.md
+|-- OPERATIONS.md
+|-- SSS-1.md
+|-- SSS-2.md
+|-- COMPLIANCE.md
+|-- API.md
+|-- CLI.md
+|-- DEPLOYMENT.md
+|-- RUNBOOK.md
+|-- HACKATHON-DELIVERABLES.md
+|-- HACKATHON-SUBMISSION.md
+`-- HACKATHON-SUBMISSION-TEMPLATE.md
+```
+
+Start here if you want:
+
+- architecture: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- operator flows: [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
+- SDK usage: [`docs/SDK.md`](docs/SDK.md)
+- CLI usage: [`docs/CLI.md`](docs/CLI.md)
+- deployment details: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+- runbook and rollback: [`docs/RUNBOOK.md`](docs/RUNBOOK.md)
+
+## Contributing
+
+```text
+GitHub hygiene
+|-- issue templates for bugs, features, and docs
+|-- PR template with validation and risk prompts
+`-- CI on push to main and on pull requests
+```
+
+- Open an issue with the matching template before large changes.
+- Keep public-facing documentation in English.
+- Prefer small, reviewable pull requests with explicit validation notes.
+- Update docs and proof artifacts when behavior changes.
+
+## Compliance Note
+
+This repository is a technical implementation reference, not legal advice. If you plan to issue a real stablecoin, combine these building blocks with jurisdiction-specific legal review, custody controls, key management, monitoring, and incident response.
 
 ## License
 

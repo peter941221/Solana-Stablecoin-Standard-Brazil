@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a new preset capability, operator workflow, or developer experience improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Share the user problem first, then the proposed shape of the solution.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What workflow is blocked or too expensive today?
+      placeholder: Compliance teams need a simpler way to export audit evidence after a seizure.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the ideal behavior, API, or operator flow.
+    validations:
+      required: true
+  - type: checkboxes
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - label: On-chain program
+        - label: Transfer hook
+        - label: SDK
+        - label: CLI
+        - label: Services
+        - label: Documentation
+        - label: CI or release process
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance signals
+      description: How will we know the feature is complete?
+      placeholder: A devnet proof exists, the README is updated, and operators can run the flow from the CLI.
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks or constraints
+      description: Mention compliance, security, or migration concerns if they apply.

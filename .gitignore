@@ -15,3 +15,9 @@ rustc-ice-*.txt
 model-calls.jsonl
 **/*keypair*.json
 **/id.json
+
+# Local project memory for this public repository
+/AGENTS.md
+/MEMORY.md
+/RUNBOOK.md
+/技术文档.txt

@@ -1,0 +1,82 @@
+name: Bug report
+description: Report a broken flow, regression, or mismatch in on-chain or service behavior.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. Please share enough detail for us to reproduce the issue quickly.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken and where did you hit it?
+      placeholder: Minting through the CLI succeeds locally but fails on devnet with a role error.
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - stablecoin-core
+        - transfer-hook
+        - sdk
+        - cli
+        - services
+        - docs
+        - ci
+    validations:
+      required: true
+  - type: dropdown
+    id: preset
+    attributes:
+      label: Preset
+      options:
+        - SSS-1
+        - SSS-2
+        - custom
+        - not sure
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Include commands, inputs, wallets, or API requests when possible.
+      placeholder: |
+        1. Start local validator
+        2. Run anchor test --skip-local-validator
+        3. Run the CLI command shown below
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or transaction signatures
+      description: Paste relevant logs, stack traces, or links to proof artifacts.
+      render: shell
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Share cluster, toolchain versions, and any important config details.
+      placeholder: |
+        Cluster: devnet
+        Node: 20.x
+        Anchor: 0.30.1
+        Solana CLI: 1.18.x
