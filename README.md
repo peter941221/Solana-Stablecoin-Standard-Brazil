@@ -1,7 +1,12 @@
 # Solana Stablecoin Standard Brazil
 
-[![CI](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml/badge.svg)](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml)
+[![CI](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Docs](https://img.shields.io/badge/docs-index-blue)](docs/README.md)
+[![Security](https://img.shields.io/badge/security-policy-red)](SECURITY.md)
+[![Contributing](https://img.shields.io/badge/contributing-guide-orange)](CONTRIBUTING.md)
+[![Issues](https://img.shields.io/github/issues/peter941221/Solana-Stablecoin-Standard-Brazil)](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/peter941221/Solana-Stablecoin-Standard-Brazil)](https://github.com/peter941221/Solana-Stablecoin-Standard-Brazil/commits/main)
 ![Solana](https://img.shields.io/badge/Solana-1.18+-9945FF?logo=solana&logoColor=white)
 ![Anchor](https://img.shields.io/badge/Anchor-0.30.1-2F7DF4)
 ![Token-2022](https://img.shields.io/badge/Token--2022-enabled-14F195)
@@ -41,6 +46,24 @@ SSS-2
 |-- transfer-hook enforcement
 `-- seizure flow via permanent delegate
 ```
+
+## Open Source Surface
+
+```text
+community
+|-- README landing page
+|-- docs/ public handbook
+|-- issue templates
+|-- PR template
+|-- contributing guide
+`-- security policy
+```
+
+- Start in `README.md` for the product overview and quick start.
+- Move to `docs/README.md` for the full public documentation map.
+- Use GitHub issue templates and the PR template for changes that need review.
+- Follow `CONTRIBUTING.md` for local setup and validation expectations.
+- Use `SECURITY.md` for private vulnerability reporting.
 
 ## Why This Repo Exists
 
